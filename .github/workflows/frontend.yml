@@ -23,8 +23,8 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install flask requests pytest pytest-cov
-      - name: Run tests
-        run: pytest tests/ -k "frontend" --no-header -q || echo "No frontend tests yet"
+      - name: Run tests with coverage
+        run: pytest tests/test_frontend.py --cov=frontend --cov-report=term-missing --cov-fail-under=80
 
   build-and-push:
     needs: test
