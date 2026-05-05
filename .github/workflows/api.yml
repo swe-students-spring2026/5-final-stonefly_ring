@@ -1,14 +1,15 @@
 name: API CI/CD
 
 on:
+  workflow_dispatch:
   push:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'api/**'
       - 'tests/test_api_*.py'
       - '.github/workflows/api.yml'
   pull_request:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'api/**'
       - 'tests/test_api_*.py'
@@ -30,7 +31,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Docker Hub
@@ -50,11 +51,15 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      - name: Deploy to Digital Ocean App Platform
-        run: doctl apps create-deployment ${{ secrets.DIGITAL_OCEAN_APP_ID }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: swe-project-5-api
+          image: docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/swe-project-5-api:${{ github.sha }}
+          region: us-east4
