@@ -8,16 +8,16 @@
 
 <section class="form-section">
     {% if error %}
-    <p class="form-error">{{ error }}</p>
+    <p class="form-error">⚠️ {{ error }}</p>
     {% endif %}
 
     {% if success %}
-    <p class="form-success">{{ success }}</p>
+    <p class="form-success">🎉 {{ success }}</p>
     {% endif %}
 
-    <form method="POST">
+    <form method="POST" style="display:flex;flex-direction:column;gap:20px;">
         <div class="form-group">
-            <label class="form-label">Username</label>
+            <label class="form-label">👤 Username</label>
             <input
                 type="text"
                 class="form-input"
@@ -25,7 +25,7 @@
                 placeholder="Enter their username"
             />
         </div>
-        <button type="submit" class="btn-primary">Send Friend Request</button>
+        <button type="submit" class="btn-primary">Send Friend Request 🤝</button>
     </form>
 </section>
 {% endblock %}

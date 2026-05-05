@@ -3,20 +3,26 @@
 {% block content %}
 <div class="page-header">
     <h1 class="page-title">Friends</h1>
-    <a href="/friends/add"><button class="header-action">Add</button></a>
+    <a href="/friends/add"><button class="header-action">+ Add</button></a>
 </div>
 
 <section class="friend-list">
+    <h2 class="section-title">Your Squad</h2>
+
     {% for f in friendships %}
     <div class="friend-row">
         <div class="friend-info">
-            <div class="avatar">{{ f.friend_username[0].upper() }}</div>
-            <span class="friend-name">{{ f.friend_username }}</span>
+            <div class="avatar" data-initial="{{ f.friend_username[0].upper() }}">{{ f.friend_username[0].upper() }}</div>
+            <div>
+                <span class="friend-name">{{ f.friend_username }}</span>
+            </div>
         </div>
+        <span style="font-size:18px;">→</span>
     </div>
     {% else %}
     <div class="empty-state">
-        <p class="empty-state-text">No friends yet</p>
+        <span class="empty-state-emoji">👥</span>
+        <p class="empty-state-text">Your friend list is empty.<br>Add someone to start splitting!</p>
         <a href="/friends/add" class="btn-inline">+ Add a friend</a>
     </div>
     {% endfor %}
