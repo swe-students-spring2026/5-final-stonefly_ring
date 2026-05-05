@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Profile</h1>
+</div>
+
+<section class="profile-section">
+    <div class="profile-avatar">{{ session.user.username[0].upper() }}</div>
+    <p class="profile-name">{{ session.user.username }}</p>
+</section>
+
+<section class="settings-list">
+    <a href="{{ url_for('logout') }}" class="settings-row settings-row--logout">
+        <span>Log out</span>
+    </a>
+</section>
+{% endblock %}

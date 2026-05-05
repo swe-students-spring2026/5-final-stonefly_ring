@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Hey, {{ session.user.username }}</h1>
+</div>
+
+<section class="balance-summary">
+    <p class="balance-label">Total balance</p>
+    <p class="balance-amount">${{ "%.2f"|format(total_balance) }}</p>
+</section>
+
+<section class="friend-list">
+    <h2 class="section-title">Friends</h2>
+
+    {% for f in friendships %}
+    {% set balance = balances.get(f.friend_username, 0) %}
+    <div class="friend-row">
+        <div class="friend-info">
+            <div class="avatar">{{ f.friend_username[0].upper() }}</div>
+            <span class="friend-name">{{ f.friend_username }}</span>
+        </div>
+        {% if balance > 0 %}
+        <span class="friend-balance owes">owes you ${{ "%.2f"|format(balance) }}</span>
+        {% elif balance < 0 %}
+        <span class="friend-balance owed">you owe ${{ "%.2f"|format(balance|abs) }}</span>
+        {% else %}
+        <span class="friend-balance settled">settled up</span>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-state-text">No friends yet</p>
+        <a href="/friends/add" class="btn-inline">+ Add a friend</a>
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Friends{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Friends</h1>
+    <a href="/friends/add"><button class="header-action">Add</button></a>
+</div>
+
+<section class="friend-list">
+    {% for f in friendships %}
+    <div class="friend-row">
+        <div class="friend-info">
+            <div class="avatar">{{ f.friend_username[0].upper() }}</div>
+            <span class="friend-name">{{ f.friend_username }}</span>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-state-text">No friends yet</p>
+        <a href="/friends/add" class="btn-inline">+ Add a friend</a>
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}
