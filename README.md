@@ -28,7 +28,6 @@ MONGO_URI=mongodb://mongodb:27017/
 MONGO_DBNAME=splitring
 FLASK_SECRET_KEY= change-me-to-a-random-long-string
 ```
-We have also simply pushed the .env file.
 
 ## Running the Project
 
