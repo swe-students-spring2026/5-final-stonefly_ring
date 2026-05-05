@@ -10,7 +10,7 @@ Living with roommates necessitates purchases for the whole room (paper towels, B
 
 ## Team
 - [Adam Shin](https://github.com/aus2003)
-- [@username2](https://github.com/username2)
+- [Han Xiao](https://github.com/vick12333)
 - [@username3](https://github.com/username3)
 - [@username4](https://github.com/username4)
 - [@username5](https://github.com/username5)
