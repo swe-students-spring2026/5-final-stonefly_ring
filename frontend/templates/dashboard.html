@@ -21,9 +21,11 @@
             <span class="friend-name">{{ f.friend_username }}</span>
         </div>
         {% if balance > 0 %}
-        <span class="friend-balance owes">owes you ${{ "%.2f"|format(balance) }}</span>
+        <span class="friend-balance owes">owes you ${{ '%.2f'|format(balance) }}</span>
         {% elif balance < 0 %}
-        <span class="friend-balance owed">you owe ${{ "%.2f"|format(balance|abs) }}</span>
+        <a href="/pay/{{ f.friend_username }}">
+            <span class="friend-balance owed">you owe ${{ '%.2f'|format(balance|abs) }}</span>
+        </a>
         {% else %}
         <span class="friend-balance settled">settled up</span>
         {% endif %}

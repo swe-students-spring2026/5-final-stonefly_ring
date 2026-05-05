@@ -167,6 +167,47 @@ def add_friend_post():
     else:
         error = res.json().get("error", "Oops! Something went wrong.")
         return render_template("add_friend.html", active_tab="friends", error=error)
+    
+
+@app.route("/pay/<friend_username>")
+@login_required
+def pay(friend_username):
+    expenses_res = requests.get(f"{API_URL}/api/expenses", params={"username": session["user"]["username"]})
+    expenses = expenses_res.json().get("expenses", []) if expenses_res.ok else []
+
+    username = session["user"]["username"]
+    balance = 0.0
+    for expense in expenses:
+        if expense["payer_username"] == friend_username and expense["debtor_username"] == username:
+            balance -= expense["amount_owed"]
+        elif expense["payer_username"] == username and expense["debtor_username"] == friend_username:
+            balance += expense["amount_owed"]
+
+    return render_template("pay.html", active_tab="dashboard", friend_username=friend_username, amount=balance)
+
+@app.route("/pay/<friend_username>", methods=["POST"])
+@login_required
+def pay_post(friend_username):
+    amount = request.form.get("amount", "").strip()
+    note = request.form.get("note", "").strip()
+
+    res = requests.post(f"{API_URL}/api/payments", json={
+        "from_username": session["user"]["username"],
+        "to_username": friend_username,
+        "amount": float(amount),
+        "note": note,
+    })
+
+    if res.ok:
+        return redirect("/")
+    else:
+        try:
+            error = res.json().get("error", "Something went wrong.")
+        except Exception:
+            error = f"Something went wrong. (status {res.status_code})"
+        return render_template("pay.html", active_tab="dashboard",
+                               friend_username=friend_username,
+                               amount=float(amount), error=error)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)

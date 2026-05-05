@@ -5,7 +5,7 @@
 # Software Engineering Final Project
 # CostShare App
 
-Living with roommates necessitates purchases for the whole room (paper towels, Brita filters, toilet paper, etc.). Tracking all those expenses is difficult, and not doing so risks some roommates paying more than others and feeling hard done by. Therefore, we made an application that tracks all expenses and properly assigns each roommate their proper share.
+Living with roommates necessitates purchases for the whole room (paper towels, Brita filters, toilet paper, etc.). Tracking all those expenses is difficult, and not doing so risks some roommates paying more than others and feeling hard done by. Therefore, we made an application that tracks all expenses and properly assigns each roommate their proper share. To do so, the application allows a user to add friends, create expenses and assign them to their friends, then allows users to log payments to each other, settling up accounts.
 
 ## Team
 - [Adam Shin](https://github.com/aus2003)
