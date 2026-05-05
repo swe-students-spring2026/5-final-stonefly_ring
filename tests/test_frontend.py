@@ -30,8 +30,6 @@ def mock_response(status_code=200, ok=True, json_data=None):
     return m
 
 
-# --- redirects when not logged in ---
-
 def test_dashboard_redirects_when_not_logged_in(monkeypatch):
     client = create_test_client(monkeypatch)
     response = client.get("/")
@@ -56,8 +54,6 @@ def test_profile_redirects_when_not_logged_in(monkeypatch):
     response = client.get("/profile")
     assert response.status_code == 302
 
-
-# --- login ---
 
 def test_login_get_returns_200(monkeypatch):
     client = create_test_client(monkeypatch)
@@ -103,9 +99,6 @@ def test_login_connection_error(monkeypatch):
     assert response.status_code == 302
     assert "login" in response.headers["Location"]
 
-
-# --- register ---
-
 def test_register_get_returns_200(monkeypatch):
     client = create_test_client(monkeypatch)
     response = client.get("/register")
@@ -148,18 +141,12 @@ def test_register_connection_error(monkeypatch):
 
     assert response.status_code == 302
 
-
-# --- logout ---
-
 def test_logout_redirects_to_login(monkeypatch):
     client = create_test_client(monkeypatch)
     set_session(client)
     response = client.get("/logout")
     assert response.status_code == 302
     assert "login" in response.headers["Location"]
-
-
-# --- logged-in routes ---
 
 def test_dashboard_when_logged_in(monkeypatch):
     client = create_test_client(monkeypatch)
@@ -292,4 +279,81 @@ def test_add_friend_post_failure(monkeypatch):
     with patch("frontend.app.requests.post", return_value=mock_resp):
         response = client.post("/friends/add", data={"friend_username": "nobody"})
 
+    assert response.status_code == 200
+
+def test_dashboard_with_payments(monkeypatch):
+    """Covers lines 50-56 (the payments loop in the dashboard)"""
+    client = create_test_client(monkeypatch)
+    set_session(client, username="alice")
+    
+    mock_friendships = mock_response(200, True, {"friendships": [{"friend_username": "bob"}, {"friend_username": "charlie"}]})
+    mock_expenses = mock_response(200, True, {"expenses": []})
+    mock_payments = mock_response(200, True, {"payments": [
+        {"from_username": "alice", "to_username": "bob", "amount": 10.0},
+        {"from_username": "charlie", "to_username": "alice", "amount": 5.0}
+    ]})
+
+    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses, mock_payments]):
+        response = client.get("/")
+
+    assert response.status_code == 200
+
+
+def test_pay_get_route(monkeypatch):
+    """Covers lines 189-213 (GET /pay/<friend_username>)"""
+    client = create_test_client(monkeypatch)
+    set_session(client, username="alice")
+    
+    mock_expenses = mock_response(200, True, {"expenses": [
+        {"payer_username": "alice", "debtor_username": "bob", "amount_owed": 15.0}
+    ]})
+    mock_payments = mock_response(200, True, {"payments": [
+        {"from_username": "bob", "to_username": "alice", "amount": 5.0}
+    ]})
+    with patch("frontend.app.requests.get", side_effect=[mock_expenses, mock_payments]):
+        response = client.get("/pay/bob")
+        
+    assert response.status_code == 200
+
+
+def test_pay_post_success(monkeypatch):
+    """Covers lines 218-231 (Successful POST /pay/<friend_username>)"""
+    client = create_test_client(monkeypatch)
+    set_session(client, username="alice")
+    
+    mock_post = mock_response(200, True, {"message": "payment successful"})
+    
+    with patch("frontend.app.requests.post", return_value=mock_post):
+        response = client.post("/pay/bob", data={"amount": "10", "note": "dinner"})
+        
+    assert response.status_code == 302
+
+
+def test_pay_post_failure_with_json(monkeypatch):
+    """Covers lines 232-235 (Failed POST with a JSON error message)"""
+    client = create_test_client(monkeypatch)
+    set_session(client, username="alice")
+    
+    mock_post = mock_response(400, False, {"error": "Invalid amount"})
+    
+    with patch("frontend.app.requests.post", return_value=mock_post):
+        response = client.post("/pay/bob", data={"amount": "-50", "note": "bad data"})
+        
+    assert response.status_code == 200
+
+
+def test_pay_post_failure_with_exception(monkeypatch):
+    """Covers line 240 (Failed POST where response is not valid JSON)"""
+    from unittest.mock import MagicMock
+    client = create_test_client(monkeypatch)
+    set_session(client, username="alice")
+
+    mock_post = MagicMock()
+    mock_post.ok = False
+    mock_post.status_code = 500
+    mock_post.json.side_effect = Exception("Not a valid JSON string")
+    
+    with patch("frontend.app.requests.post", return_value=mock_post):
+        response = client.post("/pay/bob", data={"amount": "10"})
+        
     assert response.status_code == 200
