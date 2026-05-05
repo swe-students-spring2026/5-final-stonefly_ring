@@ -29,17 +29,10 @@
             <span class="friend-name">{{ f.friend_username }}</span>
         </div>
         {% if balance > 0 %}
-<<<<<<< feat/polish-the-app
         <span class="friend-balance owes">+${{ "%.2f"|format(balance) }}</span>
         {% elif balance < 0 %}
         <a href="/pay/{{ f.friend_username }}">
             <span class="friend-balance owed">-${{ "%.2f"|format(balance|abs) }}</span>
-=======
-        <span class="friend-balance owes">owes you ${{ '%.2f'|format(balance) }}</span>
-        {% elif balance < 0 %}
-        <a href="/pay/{{ f.friend_username }}">
-            <span class="friend-balance owed">you owe ${{ '%.2f'|format(balance|abs) }}</span>
->>>>>>> main
         </a>
         {% else %}
         <span class="friend-balance settled">✓ settled</span>
