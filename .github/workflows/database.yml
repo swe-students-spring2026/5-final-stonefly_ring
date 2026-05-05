@@ -3,14 +3,14 @@ name: Database CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'database/**'
       - 'tests/test_database_*.py'
       - 'tests/test_seed_data.py'
       - '.github/workflows/database.yml'
   pull_request:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'database/**'
       - 'tests/test_database_*.py'
