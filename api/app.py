@@ -558,7 +558,7 @@ def create_payment():
     if not from_username or not to_username:
         return jsonify({"error": "from_username and to_username are required"}), 400
     if from_username == to_username:
-        return jsonify({"error": "cannot pay yourself"}), 400
+        return jsonify({"error": "from and to users must be different"}), 400
 
     try:
         amount = float(amount_raw)

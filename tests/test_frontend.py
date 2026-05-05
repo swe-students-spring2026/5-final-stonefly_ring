@@ -166,8 +166,9 @@ def test_dashboard_when_logged_in(monkeypatch):
     set_session(client)
     mock_friendships = mock_response(200, True, {"friendships": []})
     mock_expenses = mock_response(200, True, {"expenses": []})
+    mock_payments = mock_response(200, True, {"payments": []})
 
-    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses]):
+    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses, mock_payments]):
         response = client.get("/")
 
     assert response.status_code == 200
@@ -244,8 +245,8 @@ def test_dashboard_balance_as_payer(monkeypatch):
     mock_expenses = mock_response(200, True, {"expenses": [
         {"payer_username": "alice", "debtor_username": "bob", "amount_owed": 10.0}
     ]})
-
-    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses]):
+    mock_payments = mock_response(200, True, {"payments": []})
+    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses, mock_payments]):
         response = client.get("/")
 
     assert response.status_code == 200
@@ -258,8 +259,8 @@ def test_dashboard_balance_as_debtor(monkeypatch):
     mock_expenses = mock_response(200, True, {"expenses": [
         {"payer_username": "bob", "debtor_username": "alice", "amount_owed": 20.0}
     ]})
-
-    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses]):
+    mock_payments = mock_response(200, True, {"payments": []})
+    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses, mock_payments]):
         response = client.get("/")
 
     assert response.status_code == 200
