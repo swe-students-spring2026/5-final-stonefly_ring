@@ -383,6 +383,58 @@ def list_expenses():
 
     return jsonify({"username": username, "expenses": items}), 200
 
+@app.route("/api/payments", methods=["POST"])
+def create_payment():
+    data = get_json_object()
+    if data is None:
+        return jsonify({"error": "request body must be a JSON object"}), 400
+
+    from_username = data.get("from_username", "").strip()
+    to_username = data.get("to_username", "").strip()
+    amount_raw = data.get("amount")
+    note = data.get("note", "").strip() or "Settlement payment"
+
+    if not from_username or not to_username:
+        return jsonify({"error": "from_username and to_username are required"}), 400
+    if from_username == to_username:
+        return jsonify({"error": "cannot pay yourself"}), 400
+
+    try:
+        amount = float(amount_raw)
+    except (TypeError, ValueError):
+        return jsonify({"error": "amount must be numeric"}), 400
+
+    if amount <= 0:
+        return jsonify({"error": "amount must be greater than zero"}), 400
+
+    users_collection = db["users"]
+    expenses_collection = db["expenses"]
+
+    from_user = users_collection.find_one({"username": from_username})
+    to_user = users_collection.find_one({"username": to_username})
+
+    if not from_user or not to_user:
+        return jsonify({"error": "both users must exist"}), 404
+
+    expense = {
+        "payer_id": to_user["_id"],
+        "debtor_id": from_user["_id"],
+        "total_amount": amount,
+        "amount_owed": -amount,
+        "description": note,
+        "category": "payment",
+        "date": datetime.now(timezone.utc),
+        "created_at": datetime.now(timezone.utc),
+        "created_by": from_user["_id"],
+    }
+    result = expenses_collection.insert_one(expense)
+
+    return jsonify({
+        "id": str(result.inserted_id),
+        "from_username": from_username,
+        "to_username": to_username,
+        "amount": amount,
+    }), 201
 
 @app.route("/api/expenses/<expense_id>", methods=["GET"])
 def get_expense(expense_id):
