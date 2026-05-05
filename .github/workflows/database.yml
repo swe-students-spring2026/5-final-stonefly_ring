@@ -3,14 +3,14 @@ name: Database CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'database/**'
       - 'tests/test_database_*.py'
       - 'tests/test_seed_data.py'
       - '.github/workflows/database.yml'
   pull_request:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'database/**'
       - 'tests/test_database_*.py'
@@ -33,7 +33,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Docker Hub

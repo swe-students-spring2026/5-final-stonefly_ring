@@ -3,13 +3,13 @@ name: API CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'api/**'
       - 'tests/test_api_*.py'
       - '.github/workflows/api.yml'
   pull_request:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'api/**'
       - 'tests/test_api_*.py'
@@ -31,7 +31,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Docker Hub
@@ -51,7 +51,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Install doctl
         uses: digitalocean/action-doctl@v2

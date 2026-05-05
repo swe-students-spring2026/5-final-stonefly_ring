@@ -3,12 +3,12 @@ name: Frontend CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend.yml'
   pull_request:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend.yml'
@@ -23,13 +23,13 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install flask requests pytest pytest-cov
-      - name: Run tests
-        run: pytest tests/ -k "frontend" --no-header -q || echo "No frontend tests yet"
+      - name: Run tests with coverage
+        run: pytest tests/test_frontend.py --cov=frontend --cov-report=term-missing --cov-fail-under=80
 
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Docker Hub
@@ -49,7 +49,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
