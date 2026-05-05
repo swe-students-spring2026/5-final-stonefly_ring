@@ -62,4 +62,4 @@ jobs:
         with:
           service: swe-project-5-api
           image: docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/swe-project-5-api:${{ github.sha }}
-          region: us-central1
+          region: us-east1
