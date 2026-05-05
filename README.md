@@ -3,17 +3,16 @@
 [![Database CI](https://github.com/swe-students-spring2026/5-final-stonefly_ring/actions/workflows/database.yml/badge.svg)](https://github.com/swe-students-spring2026/5-final-stonefly_ring/actions/workflows/database.yml)
 
 # Software Engineering Final Project
-
 # CostShare App
 
-Living with roommates necessitates purchases for the whole room (paper towels, Brita filters, toilet paper, etc.). Tracking all those expenses is difficult, and not doing so risks some roommates paying more than others and feeling hard done by. Therefore, we made an application that tracks all expenses and properly assigns each roommate their proper share. 
+Living with roommates necessitates purchases for the whole room (paper towels, Brita filters, toilet paper, etc.). Tracking all those expenses is difficult, and not doing so risks some roommates paying more than others and feeling hard done by. Therefore, we made an application that tracks all expenses and properly assigns each roommate their proper share. To do so, the application allows a user to add friends, create expenses and assign them to their friends, then allows users to log payments to each other, settling up accounts.
 
 ## Team
 - [Adam Shin](https://github.com/aus2003)
 - [Han Xiao](https://github.com/vick12333)
-- [@username3](https://github.com/username3)
-- [@username4](https://github.com/username4)
-- [@username5](https://github.com/username5)
+- [Prabhav Jalan](https://github.com/prabhavjalan)
+- [Luke Sribhud](https://github.com/LukeySan)
+- [Abir Mahmood](https://github.com/abirmahmood6)
 
 ## Docker Container Images
 [Subsystem 1 Image]()
@@ -23,15 +22,15 @@ Living with roommates necessitates purchases for the whole room (paper towels, B
 ## Configuration
 
 ### Environment Variables
-[Insert example .env file]
-
-### Database Setup
-
-[Outline how to setup the database and whether it needs any initial data to run.]
+Example .env file:
+``` 
+MONGO_URI=mongodb://mongodb:27017/
+MONGO_DBNAME=splitring
+FLASK_SECRET_KEY= change-me-to-a-random-long-string
+```
+We have also simply pushed the .env file.
 
 ## Running the Project
-
-### Prerequisites
 
 ### With Docker Compose
 ```bash
@@ -39,6 +38,18 @@ Living with roommates necessitates purchases for the whole room (paper towels, B
 docker compose --build
 docker compose up
 ```
+
+## Starter Data (Database)
+
+After the database is initialized, you can seed local starter data:
+
+```bash
+source .venv/bin/activate
+python database/seed_data.py
+```
+
+Or, you can simply start fresh and add users manually. However, that will take creating multiple accounts and logging in and out of them.
+
 ## Backend Testing (Scoring-Critical)
 
 These commands verify backend unit tests and code coverage for the API and database subsystems.
@@ -55,13 +66,4 @@ python -m pytest
 
 # run backend coverage (API + database)
 python -m pytest --cov=api --cov=database --cov-report=term-missing
-```
-
-## Starter Data (Database)
-
-After the database is initialized, you can seed local starter data:
-
-```bash
-source .venv/bin/activate
-python database/seed_data.py
 ```
