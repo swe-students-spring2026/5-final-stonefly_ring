@@ -235,3 +235,60 @@ def test_profile_when_logged_in(monkeypatch):
     set_session(client)
     response = client.get("/profile")
     assert response.status_code == 200
+
+
+def test_dashboard_balance_as_payer(monkeypatch):
+    client = create_test_client(monkeypatch)
+    set_session(client, username="alice")
+    mock_friendships = mock_response(200, True, {"friendships": [{"friend_username": "bob"}]})
+    mock_expenses = mock_response(200, True, {"expenses": [
+        {"payer_username": "alice", "debtor_username": "bob", "amount_owed": 10.0}
+    ]})
+
+    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses]):
+        response = client.get("/")
+
+    assert response.status_code == 200
+
+
+def test_dashboard_balance_as_debtor(monkeypatch):
+    client = create_test_client(monkeypatch)
+    set_session(client, username="alice")
+    mock_friendships = mock_response(200, True, {"friendships": [{"friend_username": "bob"}]})
+    mock_expenses = mock_response(200, True, {"expenses": [
+        {"payer_username": "bob", "debtor_username": "alice", "amount_owed": 20.0}
+    ]})
+
+    with patch("frontend.app.requests.get", side_effect=[mock_friendships, mock_expenses]):
+        response = client.get("/")
+
+    assert response.status_code == 200
+
+
+def test_add_friend_get_when_logged_in(monkeypatch):
+    client = create_test_client(monkeypatch)
+    set_session(client)
+    response = client.get("/friends/add")
+    assert response.status_code == 200
+
+
+def test_add_friend_post_success(monkeypatch):
+    client = create_test_client(monkeypatch)
+    set_session(client)
+    mock_resp = mock_response(201, True, {"message": "friend added"})
+
+    with patch("frontend.app.requests.post", return_value=mock_resp):
+        response = client.post("/friends/add", data={"friend_username": "bob"})
+
+    assert response.status_code == 200
+
+
+def test_add_friend_post_failure(monkeypatch):
+    client = create_test_client(monkeypatch)
+    set_session(client)
+    mock_resp = mock_response(404, False, {"error": "user not found"})
+
+    with patch("frontend.app.requests.post", return_value=mock_resp):
+        response = client.post("/friends/add", data={"friend_username": "nobody"})
+
+    assert response.status_code == 200
