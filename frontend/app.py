@@ -29,6 +29,9 @@ def dashboard():
     expenses_res = requests.get(f"{API_URL}/api/expenses", params={"username": username})
     expenses = expenses_res.json().get("expenses", []) if expenses_res.ok else []
 
+    payments_res = requests.get(f"{API_URL}/api/payments", params={"username": username})
+    payments = payments_res.json().get("payments", []) if payments_res.ok else []
+
     # Calculate balance per friend
     balances = {}
     for f in friendships:
@@ -42,6 +45,16 @@ def dashboard():
             balances[debtor] = balances.get(debtor, 0) + amount
         elif debtor == username:
             balances[payer] = balances.get(payer, 0) - amount
+
+    for payment in payments:
+        frm = payment["from_username"]
+        to = payment["to_username"]
+        amount = payment["amount"]
+        if frm == username:
+            balances[to] = balances.get(to, 0) + amount
+        elif to == username:
+            balances[frm] = balances.get(frm, 0) - amount
+
 
     total_balance = sum(balances.values())
 
@@ -169,21 +182,33 @@ def add_friend_post():
     else:
         error = res.json().get("error", "Oops! Something went wrong.")
         return render_template("add_friend.html", active_tab="friends", error=error)
-    
 
 @app.route("/pay/<friend_username>")
 @login_required
 def pay(friend_username):
-    expenses_res = requests.get(f"{API_URL}/api/expenses", params={"username": session["user"]["username"]})
+    username = session["user"]["username"]
+
+    expenses_res = requests.get(f"{API_URL}/api/expenses", params={"username": username})
     expenses = expenses_res.json().get("expenses", []) if expenses_res.ok else []
 
-    username = session["user"]["username"]
+    payments_res = requests.get(f"{API_URL}/api/payments", params={"username": username})
+    payments = payments_res.json().get("payments", []) if payments_res.ok else []
+
     balance = 0.0
     for expense in expenses:
         if expense["payer_username"] == friend_username and expense["debtor_username"] == username:
             balance -= expense["amount_owed"]
         elif expense["payer_username"] == username and expense["debtor_username"] == friend_username:
             balance += expense["amount_owed"]
+
+    for payment in payments:
+        frm = payment["from_username"]
+        to = payment["to_username"]
+        amount = payment["amount"]
+        if frm == username and to == friend_username:
+            balance += amount
+        elif to == username and frm == friend_username:
+            balance -= amount
 
     return render_template("pay.html", active_tab="dashboard", friend_username=friend_username, amount=balance)
 
@@ -209,8 +234,7 @@ def pay_post(friend_username):
             error = f"Something went wrong. (status {res.status_code})"
         return render_template("pay.html", active_tab="dashboard",
                                friend_username=friend_username,
-                               amount=float(amount), error=error)
-
+                               amount=float(amount), error=error)    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
